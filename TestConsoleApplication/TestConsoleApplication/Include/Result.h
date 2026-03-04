@@ -5,7 +5,8 @@
 enum ResultStatus {
 	Intersection,
 	Parallel,
-	NoIntersection
+	NoIntersection,
+	Infinite
 };
 
 template <typename T>

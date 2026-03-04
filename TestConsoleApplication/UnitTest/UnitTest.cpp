@@ -234,5 +234,117 @@ namespace UnitTest
 			decltype(auto) actual = intersection_checker(s1, s2);
 			Assert::IsTrue(expected == actual.status());
 		}
-	};
+
+		TEST_METHOD(InfiniteIntersectionCase1)
+		{
+			ResultStatus expected = ResultStatus::Infinite;
+
+			Segment3D s1(Vector3D(0.0, 0.0, 0.0), Vector3D(2.0, 0.0, 0.0))
+					, s2(Vector3D(1.0, 0.0, 0.0), Vector3D(5.0, 0.0, 0.0));
+
+			decltype(auto) actual = intersection_checker(s1, s2);
+			Assert::IsTrue(expected == actual.status());
+		}
+
+		TEST_METHOD(InfiniteIntersectionCase2)
+		{
+			ResultStatus expected = ResultStatus::Infinite;
+
+			Segment3D s1(Vector3D(0.0, 0.0, 0.0), Vector3D(2.0, 0.0, 0.0))
+					, s2(Vector3D(5.0, 0.0, 0.0), Vector3D(1.0, 0.0, 0.0));
+
+			decltype(auto) actual = intersection_checker(s1, s2);
+			Assert::IsTrue(expected == actual.status());
+		}
+
+		TEST_METHOD(InfiniteIntersectionCase3)
+		{
+			ResultStatus expected = ResultStatus::Infinite;
+
+			Segment3D s1(Vector3D(2.0, 0.0, 0.0), Vector3D(0.0, 0.0, 0.0))
+					, s2(Vector3D(5.0, 0.0, 0.0), Vector3D(1.0, 0.0, 0.0));
+
+			decltype(auto) actual = intersection_checker(s1, s2);
+			Assert::IsTrue(expected == actual.status());
+		}
+
+		TEST_METHOD(InfiniteIntersectionCase4)
+		{
+			ResultStatus expected = ResultStatus::Infinite;
+
+			Segment3D s1(Vector3D(2.0, 0.0, 0.0), Vector3D(0.0, 0.0, 0.0))
+					, s2(Vector3D(1.0, 0.0, 0.0), Vector3D(5.0, 0.0, 0.0));
+
+			decltype(auto) actual = intersection_checker(s1, s2);
+			Assert::IsTrue(expected == actual.status());
+		}
+	
+
+		TEST_METHOD(InfiniteIntersectionCase5)
+		{
+			ResultStatus expected = ResultStatus::Infinite;
+
+			Segment3D s1(Vector3D(1.0, 0.0, 0.0), Vector3D(5.0, 0.0, 0.0))
+					, s2(Vector3D(0.0, 0.0, 0.0), Vector3D(2.0, 0.0, 0.0));
+
+			decltype(auto) actual = intersection_checker(s1, s2);
+			Assert::IsTrue(expected == actual.status());
+		}
+
+		TEST_METHOD(InfiniteIntersectionCase6)
+		{
+			ResultStatus expected = ResultStatus::Infinite;
+
+			Segment3D s2(Vector3D(0.0, 0.0, 0.0), Vector3D(2.0, 0.0, 0.0))
+					, s1(Vector3D(5.0, 0.0, 0.0), Vector3D(1.0, 0.0, 0.0));
+
+			decltype(auto) actual = intersection_checker(s1, s2);
+			Assert::IsTrue(expected == actual.status());
+		}
+
+		TEST_METHOD(InfiniteIntersectionCase7)
+		{
+			ResultStatus expected = ResultStatus::Infinite;
+
+			Segment3D s2(Vector3D(2.0, 0.0, 0.0), Vector3D(0.0, 0.0, 0.0))
+					, s1(Vector3D(5.0, 0.0, 0.0), Vector3D(1.0, 0.0, 0.0));
+
+			decltype(auto) actual = intersection_checker(s1, s2);
+			Assert::IsTrue(expected == actual.status());
+		}
+
+		TEST_METHOD(InfiniteIntersectionCase8)
+		{
+			ResultStatus expected = ResultStatus::Infinite;
+
+			Segment3D s2(Vector3D(2.0, 0.0, 0.0), Vector3D(0.0, 0.0, 0.0))
+					, s1(Vector3D(1.0, 0.0, 0.0), Vector3D(5.0, 0.0, 0.0));
+
+			decltype(auto) actual = intersection_checker(s1, s2);
+			Assert::IsTrue(expected == actual.status());
+		}
+	
+		TEST_METHOD(InfiniteIntersectionCase9)
+		{
+			ResultStatus expected = ResultStatus::Infinite;
+
+			Segment3D s1(Vector3D(0.0, 0.0, 0.0), Vector3D(0.0, 2.0, 0.0))
+					, s2(Vector3D(0.0, 1.0, 0.0), Vector3D(0.0, 5.0, 0.0));
+
+			decltype(auto) actual = intersection_checker(s1, s2);
+			Assert::IsTrue(expected == actual.status());
+		}
+
+		TEST_METHOD(InfiniteIntersectionCase10)
+		{
+			ResultStatus expected = ResultStatus::Infinite;
+
+			Segment3D s1(Vector3D(0.0, 0.0, 0.0), Vector3D(0.0, 0.0, 2.0))
+					, s2(Vector3D(0.0, 0.0, 0.5), Vector3D(0.0, 0.0, 1.0));
+
+			decltype(auto) actual = intersection_checker(s1, s2);
+			Assert::IsTrue(expected == actual.status());
+		}
+
+};
 }
