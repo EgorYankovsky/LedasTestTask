@@ -1,5 +1,3 @@
-#include "pch.h"
-
 #include <memory>
 
 #include "CppUnitTest.h"
@@ -158,6 +156,83 @@ namespace UnitTest
 
 			decltype(auto) actual = intersection_checker(s1, s2);
 			Assert::IsTrue(expected == actual.value());
+		}
+
+		TEST_METHOD(IntersectionCase1)
+		{
+			Vector3D expected(3.0, 2.0, 5.0);
+
+			Segment3D s1(Vector3D(4.0, 1.0, 3.0), Vector3D(2.0, 3.0, 7.0))
+					, s2(Vector3D(3.0, 0.0, 0.0), Vector3D(3.0, 4.0, 10.0));
+
+			decltype(auto) actual = intersection_checker(s1, s2);
+			Assert::IsTrue(expected == actual.value());
+		}
+
+		TEST_METHOD(IntersectionCase2)
+		{
+			Vector3D expected(1.5, 0.25, 3.0);
+
+			Segment3D s1(Vector3D(1.0, 0.0,  3.0), Vector3D(3.0,  1.0, 3.0))
+					, s2(Vector3D(1.5, 0.25, 0.0), Vector3D(1.5, 0.25, 3.0));
+
+			decltype(auto) actual = intersection_checker(s1, s2);
+			Assert::IsTrue(expected == actual.value());
+		}
+
+		TEST_METHOD(IntersectionCase3)
+		{
+			Vector3D expected(2.0, 8.0, 3.0);
+
+			Segment3D s1(Vector3D(4.0, 3.0, 5.0), Vector3D(2.0, 8.0, 3.0))
+					, s2(Vector3D(2.0, 8.0, 3.0), Vector3D(7.0, 1.0, 6.0));
+
+			decltype(auto) actual = intersection_checker(s1, s2);
+			Assert::IsTrue(expected == actual.value());
+		}
+
+		TEST_METHOD(NoIntersectionCase1)
+		{
+			ResultStatus expected = ResultStatus::NoIntersection;
+
+			Segment3D s1(Vector3D(1.0, 0.0, 0.0), Vector3D(2.0, 0.0, 0.0))
+					, s2(Vector3D(2.0, 0.0, 0.00001), Vector3D(2.0, 0.0, 3.00001));
+
+			decltype(auto) actual = intersection_checker(s1, s2);
+			Assert::IsTrue(expected == actual.status());
+		}
+
+		TEST_METHOD(NoIntersectionCase2)
+		{
+			ResultStatus expected = ResultStatus::NoIntersection;
+
+			Segment3D s1(Vector3D(1.0, 0.0, 0.0), Vector3D(2.0, 0.0, 0.0))
+					, s2(Vector3D(1.5, 0.0, 0.00001), Vector3D(1.5, 1.0, 3.00001));
+
+			decltype(auto) actual = intersection_checker(s1, s2);
+			Assert::IsTrue(expected == actual.status());
+		}
+
+		TEST_METHOD(NoIntersectionCase3)
+		{
+			ResultStatus expected = ResultStatus::NoIntersection;
+
+			Segment3D s1(Vector3D(1.0, 0.0, 1.0), Vector3D(2.0, 0.0, 2.0))
+					, s2(Vector3D(2.0, 1.0, -1.0), Vector3D(4.0, 2.0, -1.0));
+
+			decltype(auto) actual = intersection_checker(s1, s2);
+			Assert::IsTrue(expected == actual.status());
+		}
+
+		TEST_METHOD(NoIntersectionCase4)
+		{
+			ResultStatus expected = ResultStatus::NoIntersection;
+
+			Segment3D s1(Vector3D(0.0, 0.0, 0.0), Vector3D(0.0, 0.0, 1.0))
+					, s2(Vector3D(0.0, 4.0, 0.0), Vector3D(1.0, 2.0, 0.0));
+
+			decltype(auto) actual = intersection_checker(s1, s2);
+			Assert::IsTrue(expected == actual.status());
 		}
 	};
 }

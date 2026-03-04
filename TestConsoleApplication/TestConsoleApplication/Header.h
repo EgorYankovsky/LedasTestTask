@@ -1,10 +1,7 @@
 #pragma once
 
 #include <iostream>
-#include <fstream>
 #include <iomanip>
-#include <locale.h>
-#include <string.h>
 
 #include "Include/Segment3D.h"
 #include "Include/Result.h"
@@ -14,8 +11,10 @@ using matrix2x2 = std::array<std::array<double, 2>, 2>;
 using vector2 = std::array<double, 2>;
 
 const std::string no_solution_msg = "No solution.";
+const Vector3D empty_vector = Vector3D(NAN, NAN, NAN);
 
 auto Intersect(const Segment3D&, const Segment3D&) -> Vector3D;
+
 
 auto find_partial_solution(const Segment3D& s1, const Segment3D& s2) -> Result<Vector3D> {
     decltype(auto) v1 = s1.get_segmented_vector();
@@ -57,18 +56,21 @@ auto intersection_checker(const Segment3D& s1, const Segment3D& s2) -> Result<Ve
                   s2.start().z() - s1.start().z());
 
     matrix2x2 A = { {{-1.0 * (v1 * v1), v1 * v2}
-                   , {-1.0 * (v1 * v2), v2 * v2}}};
+                   , {-1.0 * (v1 * v2), v2 * v2}}};    
+    vector2 b = { -1.0 * (v1 * delt),
+                  -1.0 * (v2 * delt) };
+
     double detA = A[0][0] * A[1][1] - A[0][1] * A[1][0];
     matrix2x2 A_1 = { {{ A[1][1] / detA,  -A[0][1] / detA}
-                     , {-A[1][0] / detA,  A[0][0] / detA}}};
-    vector2 b = { -1.0 * (v1 * delt),
-                  -1.0 * (v2 * delt)};
-
+                     , {-A[1][0] / detA,   A[0][0] / detA}}};
+    
     decltype(auto) sln = A_1 * b;
 
     decltype(auto) p1 = f1.count(sln[0]);
     decltype(auto) p2 = f2.count(sln[1]);
 
-    if (p1 == p2) return Result<Vector3D>::success(p1, ResultStatus::Intersection);
+    if (p1 == p2 && 
+        0.0 - _eps <= sln[0] && sln[0] <= 1.0 + _eps && 
+        0.0 - _eps <= sln[1] && sln[1] <= 1.0 + _eps) return Result<Vector3D>::success(p1, ResultStatus::Intersection);
     return Result<Vector3D>::failure(no_solution_msg, ResultStatus::NoIntersection);
 }

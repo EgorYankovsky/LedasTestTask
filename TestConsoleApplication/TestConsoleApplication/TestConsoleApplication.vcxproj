@@ -127,8 +127,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Source\Segment3D.cpp" />
-    <ClCompile Include="Source\Vector3D.cpp" />
     <ClCompile Include="TestConsoleApplication.cpp" />
   </ItemGroup>
   <ItemGroup>

@@ -2,7 +2,7 @@
 
 #include <cmath>
 
-const double _eps = 1E-14;
+const double _eps = 1E-13;
 
 class Vector3D {
 private:
@@ -18,7 +18,9 @@ public:
 	inline auto y() const noexcept -> double { return Y; };
 	inline auto z() const noexcept -> double { return Z; };
 
-	inline auto is_zero() const noexcept -> bool { return X < 1e-16 && Y < 1e-16 && Z < 1e-16; }
+	inline auto is_zero() const noexcept -> bool { return abs(X) < _eps && 
+														  abs(Y) < _eps && 
+														  abs(Z) < _eps; }
 	inline auto norma() const noexcept -> double { return sqrt(X*X + Y*Y + Z*Z); }
 
 	/// <summary>
@@ -32,7 +34,7 @@ public:
 
 	inline friend auto operator*(const Vector3D& a, const Vector3D& b) noexcept -> double { return a.x()*b.x() + a.y()*b.y() + a.z()*b.z(); }
 	inline friend auto operator-(const Vector3D& a, const Vector3D& b) noexcept -> Vector3D { return Vector3D(a.X-b.X, a.Y-b.Y, a.Z-b.Z); }
-	inline friend auto operator==(const Vector3D& a, const Vector3D& b) noexcept -> bool { return abs(a.X - b.X) < _eps 
-																							   && abs(a.Y - b.Y) < _eps 
+	inline friend auto operator==(const Vector3D& a, const Vector3D& b) noexcept -> bool { return abs(a.X - b.X) < _eps
+																							   && abs(a.Y - b.Y) < _eps
 																							   && abs(a.Z - b.Z) < _eps; }
 };
