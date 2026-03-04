@@ -118,46 +118,46 @@ namespace UnitTest
 
 		TEST_METHOD(TestDependentOnLineVectorsIntersectionCase1)
 		{
-			ResultStatus expected = ResultStatus::Intersection;
+			Vector3D expected(2.0, 0.0, 0.0);
 
 			Segment3D s1(Vector3D(1.0, 0.0, 0.0), Vector3D(2.0, 0.0, 0.0))
 					, s2(Vector3D(2.0, 0.0, 0.0), Vector3D(3.0, 0.0, 0.0));
 
 			decltype(auto) actual = intersection_checker(s1, s2);
-			Assert::IsTrue(expected == actual.status());
+			Assert::IsTrue(expected == actual.value());
 		}
 
 		TEST_METHOD(TestDependentOnLineVectorsIntersectionCase2)
 		{
-			ResultStatus expected = ResultStatus::Intersection;
+			Vector3D expected(2.0, 0.0, 0.0);
 
 			Segment3D s1(Vector3D(1.0, 0.0, 0.0), Vector3D(2.0, 0.0, 0.0))
 					, s2(Vector3D(3.0, 0.0, 0.0), Vector3D(2.0, 0.0, 0.0));
 
 			decltype(auto) actual = intersection_checker(s1, s2);
-			Assert::IsTrue(expected == actual.status());
+			Assert::IsTrue(expected == actual.value());
 		}
 
 		TEST_METHOD(TestDependentOnLineVectorsIntersectionCase3)
 		{
-			ResultStatus expected = ResultStatus::Intersection;
+			Vector3D expected(2.0, 0.0, 0.0);
 
 			Segment3D s1(Vector3D(2.0, 0.0, 0.0), Vector3D(1.0, 0.0, 0.0))
 					, s2(Vector3D(3.0, 0.0, 0.0), Vector3D(2.0, 0.0, 0.0));
 
 			decltype(auto) actual = intersection_checker(s1, s2);
-			Assert::IsTrue(expected == actual.status());
+			Assert::IsTrue(expected == actual.value());
 		}
 
 		TEST_METHOD(TestDependentOnLineVectorsIntersectionCase4)
 		{
-			ResultStatus expected = ResultStatus::Intersection;
+			Vector3D expected(2.0, 0.0, 0.0);
 
 			Segment3D s1(Vector3D(2.0, 0.0, 0.0), Vector3D(1.0, 0.0, 0.0))
 					, s2(Vector3D(2.0, 0.0, 0.0), Vector3D(3.0, 0.0, 0.0));
 
 			decltype(auto) actual = intersection_checker(s1, s2);
-			Assert::IsTrue(expected == actual.status());
+			Assert::IsTrue(expected == actual.value());
 		}
 	};
 }

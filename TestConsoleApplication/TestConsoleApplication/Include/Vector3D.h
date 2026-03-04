@@ -2,6 +2,8 @@
 
 #include <cmath>
 
+const double _eps = 1E-14;
+
 class Vector3D {
 private:
 	double X;
@@ -28,8 +30,9 @@ public:
 						a.x() * b.y() - a.y() * b.x());
 	}
 
+	inline friend auto operator*(const Vector3D& a, const Vector3D& b) noexcept -> double { return a.x()*b.x() + a.y()*b.y() + a.z()*b.z(); }
 	inline friend auto operator-(const Vector3D& a, const Vector3D& b) noexcept -> Vector3D { return Vector3D(a.X-b.X, a.Y-b.Y, a.Z-b.Z); }
-	inline friend auto operator==(const Vector3D& a, const Vector3D& b) noexcept -> bool { return abs(a.X - b.X) < 1e-16 
-																							   && abs(a.Y - b.Y) < 1e-16 
-																							   && abs(a.Z - b.Z) < 1e-16; }
+	inline friend auto operator==(const Vector3D& a, const Vector3D& b) noexcept -> bool { return abs(a.X - b.X) < _eps 
+																							   && abs(a.Y - b.Y) < _eps 
+																							   && abs(a.Z - b.Z) < _eps; }
 };

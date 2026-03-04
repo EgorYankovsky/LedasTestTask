@@ -13,5 +13,8 @@ public:
 	inline auto start() const noexcept -> const Vector3D& { return _start; };
 	inline auto end() const noexcept -> const Vector3D& { return _end; };
 	
+	/// <summary>
+	/// Метод, возвращающий вектор, заключенный в сегменте. Иначе говоря, разница _end и _start.
+	/// </summary>
 	inline auto get_segmented_vector() const noexcept -> Vector3D { return _end - _start; }
 };

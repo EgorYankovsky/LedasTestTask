@@ -133,12 +133,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Header.h" />
+    <ClInclude Include="Include\ParametricFunction.h" />
     <ClInclude Include="Include\Result.h" />
     <ClInclude Include="Include\Segment3D.h" />
     <ClInclude Include="Include\Vector3D.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="vectors.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
