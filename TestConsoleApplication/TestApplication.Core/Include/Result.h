@@ -31,7 +31,7 @@ public:
 	~Result() {}
 
 	inline ResultStatus status() noexcept { return _status; };
-	inline T value() noexcept { return *_value; };
+	inline T value() { return *_value; };
 	inline std::string message() noexcept { return _msg; };
 
 	static Result<T> success(const T& value , const ResultStatus& status) { return Result(value, status); }

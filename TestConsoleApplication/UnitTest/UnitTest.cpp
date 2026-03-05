@@ -2,7 +2,9 @@
 
 #include "CppUnitTest.h"
 
-#include "../TestConsoleApplication/Header.h"
+#include "Include/Segment3D.h"
+#include "Include/Solutions.h"
+#include "framework.h"
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
@@ -74,7 +76,6 @@ namespace UnitTest
 		}
 	};
 
-
 	TEST_CLASS(TestSegment)
 	{
 
@@ -90,261 +91,597 @@ namespace UnitTest
 		}
 	};
 
-	TEST_CLASS(IntersectTests)
+	TEST_CLASS(TestPointAndPointSolution)
 	{
-		TEST_METHOD(TestDependentParallelVectors)
+		std::unique_ptr<ISolution> solver;
+
+		TEST_METHOD_INITIALIZE(TestPointAndPointSolutionInit)
+		{
+			solver = std::make_unique<PointAndPointSolution>();
+		}
+
+		TEST_METHOD(TestPointsIntersection)
+		{
+			Vector3D expected(3.0, 2.0, 1.0);
+
+			Segment3D s1(Vector3D(3.0, 2.0, 1.0), Vector3D(3.0, 2.0, 1.0))
+					, s2(Vector3D(3.0, 2.0, 1.0), Vector3D(3.0, 2.0, 1.0));
+
+			decltype(auto) solution_result = solver->solve(s1, s2);
+			if (solution_result.status() != ResultStatus::Intersection) Assert::Fail();
+			decltype(auto) actual = solution_result.value();
+			Assert::IsTrue(expected == actual);
+		}
+
+		TEST_METHOD(TestPointsNoIntersection)
+		{
+			ResultStatus expected = ResultStatus::NoIntersection;
+
+			Segment3D s1(Vector3D(3.0, 2.0, 1.0), Vector3D(3.0, 2.0, 1.0))
+					, s2(Vector3D(3.0, 3.0, 3.0), Vector3D(3.0, 3.0, 3.0));
+
+			decltype(auto) solution_result = solver->solve(s1, s2);
+			decltype(auto) actual = solution_result.status();
+			Assert::IsTrue(expected == actual);
+		}
+	};
+
+	TEST_CLASS(TestPointAndLineSolution)
+	{
+		std::unique_ptr<ISolution> solver;
+
+		TEST_METHOD_INITIALIZE(TestPointAndLineSolutionInit)
+		{
+			solver = std::make_unique<PointAndLineSolution>();
+		}
+
+		TEST_METHOD(TestPointAndLineIntersection)
+		{
+			Vector3D expected(3.0, 2.0, 1.0);
+
+			Segment3D s1(Vector3D(3.0, 2.0, 1.0), Vector3D(3.0, 2.0, 1.0))
+					, s2(Vector3D(2.0, 4.0, 0.0), Vector3D(4.0, 0.0, 2.0));
+
+			decltype(auto) solution_result = solver->solve(s1, s2);
+			if (solution_result.status() != ResultStatus::Intersection) Assert::Fail();
+			decltype(auto) actual = solution_result.value();
+			Assert::IsTrue(expected == actual);
+		}
+
+		TEST_METHOD(TestPointAndLineOutOfRangeIntersection)
+		{
+			ResultStatus expected = ResultStatus::NoIntersection;
+
+			Segment3D s1(Vector3D(5.0, -2.0, 3.0), Vector3D(5.0, -2.0, 3.0))
+					, s2(Vector3D(2.0, 4.0, 0.0), Vector3D(4.0, 0.0, 2.0));
+
+			decltype(auto) solution_result = solver->solve(s1, s2);
+			decltype(auto) actual = solution_result.status();
+			Assert::IsTrue(expected == actual);
+		}
+
+		TEST_METHOD(TestPointAndLineIntersectionAtStart)
+		{
+			Vector3D expected(2.0, 4.0, 0.0);
+
+			Segment3D s1(Vector3D(2.0, 4.0, 0.0), Vector3D(2.0, 4.0, 0.0))
+					, s2(Vector3D(2.0, 4.0, 0.0), Vector3D(4.0, 0.0, 2.0));
+
+			decltype(auto) solution_result = solver->solve(s1, s2);
+			if (solution_result.status() != ResultStatus::Intersection) Assert::Fail();
+			decltype(auto) actual = solution_result.value();
+			Assert::IsTrue(expected == actual);
+		}
+
+		TEST_METHOD(TestPointAndLineIntersectionAtEnd)
+		{
+			Vector3D expected(4.0, 0.0, 2.0);
+
+			Segment3D s1(Vector3D(4.0, 0.0, 2.0), Vector3D(4.0, 0.0, 2.0))
+					, s2(Vector3D(2.0, 4.0, 0.0), Vector3D(4.0, 0.0, 2.0));
+
+			decltype(auto) solution_result = solver->solve(s1, s2);
+			if (solution_result.status() != ResultStatus::Intersection) Assert::Fail();
+			decltype(auto) actual = solution_result.value();
+			Assert::IsTrue(expected == actual);
+		}
+		TEST_METHOD(TestPointAndLineNoIntersection)
+		{
+			ResultStatus expected = ResultStatus::NoIntersection;
+
+			Segment3D s1(Vector3D(3.0, 2.0, 1.0), Vector3D(3.0, 2.0, 1.0))
+					, s2(Vector3D(3.0, 3.0, 3.0), Vector3D(4.0, 4.0, 4.0));
+
+			decltype(auto) solution_result = solver->solve(s1, s2);
+			decltype(auto) actual = solution_result.status();
+			Assert::IsTrue(expected == actual);
+		}
+	};
+	
+	TEST_CLASS(TestCollinearityLinesSolution)
+	{
+		std::unique_ptr<ISolution> solver;
+
+		TEST_METHOD_INITIALIZE(TestPointAndLineSolutionInit)
+		{
+			solver = std::make_unique<CollinearityLinesSolution>();
+		}
+
+		TEST_METHOD(TestParallelLinesCase1)
 		{
 			ResultStatus expected = ResultStatus::Parallel;
 
-			Segment3D s1(Vector3D(1.0, 0.0, 0.0), Vector3D(2.0, 0.0, 0.0))
-					, s2(Vector3D(1.5, 1.0, 2.0), Vector3D(2.5, 1.0, 2.0));
+			Segment3D s1(Vector3D(0.0, 0.0, 0.0), Vector3D(1.0, 0.0, 0.0))
+					, s2(Vector3D(0.0, 1.0, 0.0), Vector3D(1.0, 1.0, 0.0));
 
-			decltype(auto) actual = intersection_checker(s1, s2);
-			Assert::IsTrue(expected == actual.status());
+			decltype(auto) solution_result = solver->solve(s1, s2);
+			decltype(auto) actual = solution_result.status();
+			Assert::IsTrue(expected == actual);
 		}
 
-		TEST_METHOD(TestDependentOnLineVectorsNoIntersection)
+		TEST_METHOD(TestParallelLinesCase2)
+		{
+			ResultStatus expected = ResultStatus::Parallel;
+
+			Segment3D s1(Vector3D(0.0, 0.0, 0.0), Vector3D(1.0, 0.0, 0.0))
+					, s2(Vector3D(1.0, 1.0, 0.0), Vector3D(0.0, 1.0, 0.0));
+
+			decltype(auto) solution_result = solver->solve(s1, s2);
+			decltype(auto) actual = solution_result.status();
+			Assert::IsTrue(expected == actual);
+		}
+
+		TEST_METHOD(TestParallelLinesCase3)
+		{
+			ResultStatus expected = ResultStatus::Parallel;
+
+			Segment3D s1(Vector3D(1.0, 0.0, 0.0), Vector3D(0.0, 0.0, 0.0))
+					, s2(Vector3D(0.0, 1.0, 0.0), Vector3D(1.0, 1.0, 0.0));
+
+			decltype(auto) solution_result = solver->solve(s1, s2);
+			decltype(auto) actual = solution_result.status();
+			Assert::IsTrue(expected == actual);
+		}
+
+		TEST_METHOD(TestParallelLinesCase4)
+		{
+			ResultStatus expected = ResultStatus::Parallel;
+
+			Segment3D s1(Vector3D(1.0, 0.0, 0.0), Vector3D(0.0, 0.0, 0.0))
+					, s2(Vector3D(1.0, 1.0, 0.0), Vector3D(0.0, 1.0, 0.0));
+
+			decltype(auto) solution_result = solver->solve(s1, s2);
+			decltype(auto) actual = solution_result.status();
+			Assert::IsTrue(expected == actual);
+		}
+
+		TEST_METHOD(TestInfiniteIntersectionCase1)
+		{
+			ResultStatus expected = ResultStatus::Infinite;
+
+			Segment3D s1(Vector3D(0.0, 0.0, 0.0), Vector3D(2.0, 0.0, 0.0))
+					, s2(Vector3D(1.0, 0.0, 0.0), Vector3D(3.0, 0.0, 0.0));
+
+			decltype(auto) solution_result = solver->solve(s1, s2);
+			decltype(auto) actual = solution_result.status();
+			Assert::IsTrue(expected == actual);
+		}
+
+		TEST_METHOD(TestInfiniteIntersectionCase2)
+		{
+			ResultStatus expected = ResultStatus::Infinite;
+
+			Segment3D s1(Vector3D(0.0, 0.0, 0.0), Vector3D(2.0, 0.0, 0.0))
+					, s2(Vector3D(3.0, 0.0, 0.0), Vector3D(1.0, 0.0, 0.0));
+
+			decltype(auto) solution_result = solver->solve(s1, s2);
+			decltype(auto) actual = solution_result.status();
+			Assert::IsTrue(expected == actual);
+		}
+
+		TEST_METHOD(TestInfiniteIntersectionCase3)
+		{
+			ResultStatus expected = ResultStatus::Infinite;
+
+			Segment3D s1(Vector3D(2.0, 0.0, 0.0), Vector3D(1.0, 0.0, 0.0))
+					, s2(Vector3D(1.0, 0.0, 0.0), Vector3D(3.0, 0.0, 0.0));
+
+			decltype(auto) solution_result = solver->solve(s1, s2);
+			decltype(auto) actual = solution_result.status();
+			Assert::IsTrue(expected == actual);
+		}
+
+		TEST_METHOD(TestInfiniteIntersectionCase4)
+		{
+			ResultStatus expected = ResultStatus::Infinite;
+
+			Segment3D s1(Vector3D(2.0, 0.0, 0.0), Vector3D(1.0, 0.0, 0.0))
+					, s2(Vector3D(3.0, 0.0, 0.0), Vector3D(1.0, 0.0, 0.0));
+
+			decltype(auto) solution_result = solver->solve(s1, s2);
+			decltype(auto) actual = solution_result.status();
+			Assert::IsTrue(expected == actual);
+		}
+
+		TEST_METHOD(TestInfiniteIntersectionCase5)
+		{
+			ResultStatus expected = ResultStatus::Infinite;
+
+			Segment3D s2(Vector3D(0.0, 0.0, 0.0), Vector3D(2.0, 0.0, 0.0))
+					, s1(Vector3D(1.0, 0.0, 0.0), Vector3D(3.0, 0.0, 0.0));
+
+			decltype(auto) solution_result = solver->solve(s1, s2);
+			decltype(auto) actual = solution_result.status();
+			Assert::IsTrue(expected == actual);
+		}
+
+		TEST_METHOD(TestInfiniteIntersectionCase6)
+		{
+			ResultStatus expected = ResultStatus::Infinite;
+
+			Segment3D s2(Vector3D(0.0, 0.0, 0.0), Vector3D(2.0, 0.0, 0.0))
+					, s1(Vector3D(3.0, 0.0, 0.0), Vector3D(1.0, 0.0, 0.0));
+
+			decltype(auto) solution_result = solver->solve(s1, s2);
+			decltype(auto) actual = solution_result.status();
+			Assert::IsTrue(expected == actual);
+		}
+
+		TEST_METHOD(TestInfiniteIntersectionCase7)
+		{
+			ResultStatus expected = ResultStatus::Infinite;
+
+			Segment3D s2(Vector3D(2.0, 0.0, 0.0), Vector3D(1.0, 0.0, 0.0))
+					, s1(Vector3D(1.0, 0.0, 0.0), Vector3D(3.0, 0.0, 0.0));
+
+			decltype(auto) solution_result = solver->solve(s1, s2);
+			decltype(auto) actual = solution_result.status();
+			Assert::IsTrue(expected == actual);
+		}
+
+		TEST_METHOD(TestInfiniteIntersectionCase8)
+		{
+			ResultStatus expected = ResultStatus::Infinite;
+
+			Segment3D s2(Vector3D(2.0, 0.0, 0.0), Vector3D(1.0, 0.0, 0.0))
+					, s1(Vector3D(3.0, 0.0, 0.0), Vector3D(1.0, 0.0, 0.0));
+
+			decltype(auto) solution_result = solver->solve(s1, s2);
+			decltype(auto) actual = solution_result.status();
+			Assert::IsTrue(expected == actual);
+		}
+	
+		TEST_METHOD(TestNoIntersectionCase1)
 		{
 			ResultStatus expected = ResultStatus::NoIntersection;
 
 			Segment3D s1(Vector3D(1.0, 0.0, 0.0), Vector3D(2.0, 0.0, 0.0))
 					, s2(Vector3D(3.0, 0.0, 0.0), Vector3D(4.0, 0.0, 0.0));
 
-			decltype(auto) actual = intersection_checker(s1, s2);
-			Assert::IsTrue(expected == actual.status());
+			decltype(auto) solution_result = solver->solve(s1, s2);
+			decltype(auto) actual = solution_result.status();
+			Assert::IsTrue(expected == actual);
 		}
-
-		TEST_METHOD(TestDependentOnLineVectorsIntersectionCase1)
+		
+		TEST_METHOD(TestNoIntersectionCase2)
 		{
-			Vector3D expected(2.0, 0.0, 0.0);
+			ResultStatus expected = ResultStatus::NoIntersection;
 
 			Segment3D s1(Vector3D(1.0, 0.0, 0.0), Vector3D(2.0, 0.0, 0.0))
-					, s2(Vector3D(2.0, 0.0, 0.0), Vector3D(3.0, 0.0, 0.0));
+					, s2(Vector3D(4.0, 0.0, 0.0), Vector3D(3.0, 0.0, 0.0));
 
-			decltype(auto) actual = intersection_checker(s1, s2);
-			Assert::IsTrue(expected == actual.value());
+			decltype(auto) solution_result = solver->solve(s1, s2);
+			decltype(auto) actual = solution_result.status();
+			Assert::IsTrue(expected == actual);
 		}
-
-		TEST_METHOD(TestDependentOnLineVectorsIntersectionCase2)
+		
+		TEST_METHOD(TestNoIntersectionCase3)
 		{
-			Vector3D expected(2.0, 0.0, 0.0);
-
-			Segment3D s1(Vector3D(1.0, 0.0, 0.0), Vector3D(2.0, 0.0, 0.0))
-					, s2(Vector3D(3.0, 0.0, 0.0), Vector3D(2.0, 0.0, 0.0));
-
-			decltype(auto) actual = intersection_checker(s1, s2);
-			Assert::IsTrue(expected == actual.value());
-		}
-
-		TEST_METHOD(TestDependentOnLineVectorsIntersectionCase3)
-		{
-			Vector3D expected(2.0, 0.0, 0.0);
+			ResultStatus expected = ResultStatus::NoIntersection;
 
 			Segment3D s1(Vector3D(2.0, 0.0, 0.0), Vector3D(1.0, 0.0, 0.0))
-					, s2(Vector3D(3.0, 0.0, 0.0), Vector3D(2.0, 0.0, 0.0));
+					, s2(Vector3D(3.0, 0.0, 0.0), Vector3D(4.0, 0.0, 0.0));
 
-			decltype(auto) actual = intersection_checker(s1, s2);
-			Assert::IsTrue(expected == actual.value());
+			decltype(auto) solution_result = solver->solve(s1, s2);
+			decltype(auto) actual = solution_result.status();
+			Assert::IsTrue(expected == actual);
 		}
-
-		TEST_METHOD(TestDependentOnLineVectorsIntersectionCase4)
+		
+		TEST_METHOD(TestNoIntersectionCase4)
 		{
-			Vector3D expected(2.0, 0.0, 0.0);
+			ResultStatus expected = ResultStatus::NoIntersection;
 
 			Segment3D s1(Vector3D(2.0, 0.0, 0.0), Vector3D(1.0, 0.0, 0.0))
-					, s2(Vector3D(2.0, 0.0, 0.0), Vector3D(3.0, 0.0, 0.0));
+					, s2(Vector3D(4.0, 0.0, 0.0), Vector3D(3.0, 0.0, 0.0));
 
-			decltype(auto) actual = intersection_checker(s1, s2);
-			Assert::IsTrue(expected == actual.value());
+			decltype(auto) solution_result = solver->solve(s1, s2);
+			decltype(auto) actual = solution_result.status();
+			Assert::IsTrue(expected == actual);
 		}
 
-		TEST_METHOD(IntersectionCase1)
+		TEST_METHOD(TestNoIntersectionCase5)
+		{
+			ResultStatus expected = ResultStatus::NoIntersection;
+
+			Segment3D s2(Vector3D(1.0, 0.0, 0.0), Vector3D(2.0, 0.0, 0.0))
+					, s1(Vector3D(3.0, 0.0, 0.0), Vector3D(4.0, 0.0, 0.0));
+
+			decltype(auto) solution_result = solver->solve(s1, s2);
+			decltype(auto) actual = solution_result.status();
+			Assert::IsTrue(expected == actual);
+		}
+		
+		TEST_METHOD(TestNoIntersectionCase6)
+		{
+			ResultStatus expected = ResultStatus::NoIntersection;
+
+			Segment3D s2(Vector3D(1.0, 0.0, 0.0), Vector3D(2.0, 0.0, 0.0))
+					, s1(Vector3D(4.0, 0.0, 0.0), Vector3D(3.0, 0.0, 0.0));
+
+			decltype(auto) solution_result = solver->solve(s1, s2);
+			decltype(auto) actual = solution_result.status();
+			Assert::IsTrue(expected == actual);
+		}
+		
+		TEST_METHOD(TestNoIntersectionCase7)
+		{
+			ResultStatus expected = ResultStatus::NoIntersection;
+
+			Segment3D s2(Vector3D(2.0, 0.0, 0.0), Vector3D(1.0, 0.0, 0.0))
+					, s1(Vector3D(3.0, 0.0, 0.0), Vector3D(4.0, 0.0, 0.0));
+
+			decltype(auto) solution_result = solver->solve(s1, s2);
+			decltype(auto) actual = solution_result.status();
+			Assert::IsTrue(expected == actual);
+		}
+		
+		TEST_METHOD(TestNoIntersectionCase8)
+		{
+			ResultStatus expected = ResultStatus::NoIntersection;
+
+			Segment3D s2(Vector3D(2.0, 0.0, 0.0), Vector3D(1.0, 0.0, 0.0))
+					, s1(Vector3D(4.0, 0.0, 0.0), Vector3D(3.0, 0.0, 0.0));
+
+			decltype(auto) solution_result = solver->solve(s1, s2);
+			decltype(auto) actual = solution_result.status();
+			Assert::IsTrue(expected == actual);
+		}
+
+		TEST_METHOD(TestOnlySolutionIntersectionCase1)
+		{
+			Vector3D expected(1.0, 0.0, 0.0);
+
+			Segment3D s1(Vector3D(0.0, 0.0, 0.0), Vector3D(1.0, 0.0, 0.0))
+					, s2(Vector3D(1.0, 0.0, 0.0), Vector3D(2.0, 0.0, 0.0));
+
+			decltype(auto) solution_result = solver->solve(s1, s2);
+			if (solution_result.status() != ResultStatus::Intersection) Assert::Fail();
+			decltype(auto) actual = solution_result.value();
+			Assert::IsTrue(expected == actual);
+		}
+		
+		TEST_METHOD(TestOnlySolutionIntersectionCase2)
+		{
+			Vector3D expected(1.0, 0.0, 0.0);
+
+			Segment3D s1(Vector3D(0.0, 0.0, 0.0), Vector3D(1.0, 0.0, 0.0))
+					, s2(Vector3D(2.0, 0.0, 0.0), Vector3D(1.0, 0.0, 0.0));
+
+			decltype(auto) solution_result = solver->solve(s1, s2);
+			if (solution_result.status() != ResultStatus::Intersection) Assert::Fail();
+			decltype(auto) actual = solution_result.value();
+			Assert::IsTrue(expected == actual);
+		}
+		
+		TEST_METHOD(TestOnlySolutionIntersectionCase3)
+		{
+			Vector3D expected(1.0, 0.0, 0.0);
+
+			Segment3D s1(Vector3D(1.0, 0.0, 0.0), Vector3D(0.0, 0.0, 0.0))
+					, s2(Vector3D(1.0, 0.0, 0.0), Vector3D(2.0, 0.0, 0.0));
+
+			decltype(auto) solution_result = solver->solve(s1, s2);
+			if (solution_result.status() != ResultStatus::Intersection) Assert::Fail();
+			decltype(auto) actual = solution_result.value();
+			Assert::IsTrue(expected == actual);
+		}
+
+		TEST_METHOD(TestOnlySolutionIntersectionCase4)
+		{
+			Vector3D expected(1.0, 0.0, 0.0);
+
+			Segment3D s1(Vector3D(1.0, 0.0, 0.0), Vector3D(0.0, 0.0, 0.0))
+					, s2(Vector3D(2.0, 0.0, 0.0), Vector3D(1.0, 0.0, 0.0));
+
+			decltype(auto) solution_result = solver->solve(s1, s2);
+			if (solution_result.status() != ResultStatus::Intersection) Assert::Fail();
+			decltype(auto) actual = solution_result.value();
+			Assert::IsTrue(expected == actual);
+		}
+
+		TEST_METHOD(TestOnlySolutionIntersectionCase5)
+		{
+			Vector3D expected(1.0, 0.0, 0.0);
+
+			Segment3D s2(Vector3D(0.0, 0.0, 0.0), Vector3D(1.0, 0.0, 0.0))
+					, s1(Vector3D(1.0, 0.0, 0.0), Vector3D(2.0, 0.0, 0.0));
+
+			decltype(auto) solution_result = solver->solve(s1, s2);
+			if (solution_result.status() != ResultStatus::Intersection) Assert::Fail();
+			decltype(auto) actual = solution_result.value();
+			Assert::IsTrue(expected == actual);
+		}
+		
+		TEST_METHOD(TestOnlySolutionIntersectionCase6)
+		{
+			Vector3D expected(1.0, 0.0, 0.0);
+
+			Segment3D s2(Vector3D(0.0, 0.0, 0.0), Vector3D(1.0, 0.0, 0.0))
+					, s1(Vector3D(2.0, 0.0, 0.0), Vector3D(1.0, 0.0, 0.0));
+
+			decltype(auto) solution_result = solver->solve(s1, s2);
+			if (solution_result.status() != ResultStatus::Intersection) Assert::Fail();
+			decltype(auto) actual = solution_result.value();
+			Assert::IsTrue(expected == actual);
+		}
+		
+		TEST_METHOD(TestOnlySolutionIntersectionCase7)
+		{
+			Vector3D expected(1.0, 0.0, 0.0);
+
+			Segment3D s2(Vector3D(1.0, 0.0, 0.0), Vector3D(0.0, 0.0, 0.0))
+					, s1(Vector3D(1.0, 0.0, 0.0), Vector3D(2.0, 0.0, 0.0));
+
+			decltype(auto) solution_result = solver->solve(s1, s2);
+			if (solution_result.status() != ResultStatus::Intersection) Assert::Fail();
+			decltype(auto) actual = solution_result.value();
+			Assert::IsTrue(expected == actual);
+		}
+
+		TEST_METHOD(TestOnlySolutionIntersectionCase8)
+		{
+			Vector3D expected(1.0, 0.0, 0.0);
+
+			Segment3D s2(Vector3D(1.0, 0.0, 0.0), Vector3D(0.0, 0.0, 0.0))
+					, s1(Vector3D(2.0, 0.0, 0.0), Vector3D(1.0, 0.0, 0.0));
+
+			decltype(auto) solution_result = solver->solve(s1, s2);
+			if (solution_result.status() != ResultStatus::Intersection) Assert::Fail();
+			decltype(auto) actual = solution_result.value();
+			Assert::IsTrue(expected == actual);
+		}
+
+		TEST_METHOD(TestInfiniteIntersectionSameLineCase1)
+		{
+			ResultStatus expected = ResultStatus::Infinite;
+
+			Segment3D s1(Vector3D(1.0, 0.0, 0.0), Vector3D(3.0, 0.0, 0.0))
+					, s2(Vector3D(1.0, 0.0, 0.0), Vector3D(3.0, 0.0, 0.0));
+
+			decltype(auto) solution_result = solver->solve(s1, s2);
+			decltype(auto) actual = solution_result.status();
+			Assert::IsTrue(expected == actual);
+		}
+
+		TEST_METHOD(TestInfiniteIntersectionSameLineCase2)
+		{
+			ResultStatus expected = ResultStatus::Infinite;
+
+			Segment3D s1(Vector3D(3.0, 0.0, 0.0), Vector3D(1.0, 0.0, 0.0))
+					, s2(Vector3D(1.0, 0.0, 0.0), Vector3D(3.0, 0.0, 0.0));
+
+			decltype(auto) solution_result = solver->solve(s1, s2);
+			decltype(auto) actual = solution_result.status();
+			Assert::IsTrue(expected == actual);
+		}
+
+		TEST_METHOD(TestInfiniteIntersectionSameLineCase3)
+		{
+			ResultStatus expected = ResultStatus::Infinite;
+
+			Segment3D s1(Vector3D(1.0, 0.0, 0.0), Vector3D(3.0, 0.0, 0.0))
+					, s2(Vector3D(3.0, 0.0, 0.0), Vector3D(1.0, 0.0, 0.0));
+
+			decltype(auto) solution_result = solver->solve(s1, s2);
+			decltype(auto) actual = solution_result.status();
+			Assert::IsTrue(expected == actual);
+		}
+
+		TEST_METHOD(TestInfiniteIntersectionSameLineCase4)
+		{
+			ResultStatus expected = ResultStatus::Infinite;
+
+			Segment3D s1(Vector3D(3.0, 0.0, 0.0), Vector3D(1.0, 0.0, 0.0))
+					, s2(Vector3D(3.0, 0.0, 0.0), Vector3D(1.0, 0.0, 0.0));
+
+			decltype(auto) solution_result = solver->solve(s1, s2);
+			decltype(auto) actual = solution_result.status();
+			Assert::IsTrue(expected == actual);
+		}
+
+		TEST_METHOD(TestInfiniteIntersectionSameLineCase5)
+		{
+			ResultStatus expected = ResultStatus::Infinite;
+
+			Segment3D s2(Vector3D(1.0, 0.0, 0.0), Vector3D(3.0, 0.0, 0.0))
+					, s1(Vector3D(1.0, 0.0, 0.0), Vector3D(3.0, 0.0, 0.0));
+
+			decltype(auto) solution_result = solver->solve(s1, s2);
+			decltype(auto) actual = solution_result.status();
+			Assert::IsTrue(expected == actual);
+		}
+
+		TEST_METHOD(TestInfiniteIntersectionSameLineCase6)
+		{
+			ResultStatus expected = ResultStatus::Infinite;
+
+			Segment3D s2(Vector3D(3.0, 0.0, 0.0), Vector3D(1.0, 0.0, 0.0))
+					, s1(Vector3D(1.0, 0.0, 0.0), Vector3D(3.0, 0.0, 0.0));
+
+			decltype(auto) solution_result = solver->solve(s1, s2);
+			decltype(auto) actual = solution_result.status();
+			Assert::IsTrue(expected == actual);
+		}
+
+		TEST_METHOD(TestInfiniteIntersectionSameLineCase7)
+		{
+			ResultStatus expected = ResultStatus::Infinite;
+
+			Segment3D s2(Vector3D(1.0, 0.0, 0.0), Vector3D(3.0, 0.0, 0.0))
+					, s1(Vector3D(3.0, 0.0, 0.0), Vector3D(1.0, 0.0, 0.0));
+
+			decltype(auto) solution_result = solver->solve(s1, s2);
+			decltype(auto) actual = solution_result.status();
+			Assert::IsTrue(expected == actual);
+		}
+
+		TEST_METHOD(TestInfiniteIntersectionSameLineCase8)
+		{
+			ResultStatus expected = ResultStatus::Infinite;
+
+			Segment3D s2(Vector3D(3.0, 0.0, 0.0), Vector3D(1.0, 0.0, 0.0))
+					, s1(Vector3D(3.0, 0.0, 0.0), Vector3D(1.0, 0.0, 0.0));
+
+			decltype(auto) solution_result = solver->solve(s1, s2);
+			decltype(auto) actual = solution_result.status();
+			Assert::IsTrue(expected == actual);
+		}
+	
+	};
+
+	TEST_CLASS(TestIntersectingLinesSolution)
+	{
+		std::unique_ptr<ISolution> solver;
+
+		TEST_METHOD_INITIALIZE(TestPointAndLineSolutionInit)
+		{
+			solver = std::make_unique<IntersectingLinesSolution>();
+		}
+
+		TEST_METHOD(TestIntersection)
 		{
 			Vector3D expected(3.0, 2.0, 5.0);
 
 			Segment3D s1(Vector3D(4.0, 1.0, 3.0), Vector3D(2.0, 3.0, 7.0))
 					, s2(Vector3D(3.0, 0.0, 0.0), Vector3D(3.0, 4.0, 10.0));
 
-			decltype(auto) actual = intersection_checker(s1, s2);
-			Assert::IsTrue(expected == actual.value());
+			decltype(auto) solution_result = solver->solve(s1, s2);
+			if (solution_result.status() != ResultStatus::Intersection) Assert::Fail();
+			decltype(auto) actual = solution_result.value();
+			Assert::IsTrue(expected == actual);
 		}
 
-		TEST_METHOD(IntersectionCase2)
-		{
-			Vector3D expected(1.5, 0.25, 3.0);
-
-			Segment3D s1(Vector3D(1.0, 0.0,  3.0), Vector3D(3.0,  1.0, 3.0))
-					, s2(Vector3D(1.5, 0.25, 0.0), Vector3D(1.5, 0.25, 3.0));
-
-			decltype(auto) actual = intersection_checker(s1, s2);
-			Assert::IsTrue(expected == actual.value());
-		}
-
-		TEST_METHOD(IntersectionCase3)
-		{
-			Vector3D expected(2.0, 8.0, 3.0);
-
-			Segment3D s1(Vector3D(4.0, 3.0, 5.0), Vector3D(2.0, 8.0, 3.0))
-					, s2(Vector3D(2.0, 8.0, 3.0), Vector3D(7.0, 1.0, 6.0));
-
-			decltype(auto) actual = intersection_checker(s1, s2);
-			Assert::IsTrue(expected == actual.value());
-		}
-
-		TEST_METHOD(NoIntersectionCase1)
+		TEST_METHOD(TestNoIntersection)
 		{
 			ResultStatus expected = ResultStatus::NoIntersection;
 
-			Segment3D s1(Vector3D(1.0, 0.0, 0.0), Vector3D(2.0, 0.0, 0.0))
-					, s2(Vector3D(2.0, 0.0, 0.00001), Vector3D(2.0, 0.0, 3.00001));
+			Segment3D s1(Vector3D(4.0, 1.0, 3.0), Vector3D(2.0, 3.0, 7.0))
+					, s2(Vector3D(3.0, 0.0, 0.0), Vector3D(3.0, 8.0, 10.0));
 
-			decltype(auto) actual = intersection_checker(s1, s2);
-			Assert::IsTrue(expected == actual.status());
+			decltype(auto) solution_result = solver->solve(s1, s2);
+			decltype(auto) actual = solution_result.status();
+			Assert::IsTrue(expected == actual);
 		}
+	};
 
-		TEST_METHOD(NoIntersectionCase2)
-		{
-			ResultStatus expected = ResultStatus::NoIntersection;
-
-			Segment3D s1(Vector3D(1.0, 0.0, 0.0), Vector3D(2.0, 0.0, 0.0))
-					, s2(Vector3D(1.5, 0.0, 0.00001), Vector3D(1.5, 1.0, 3.00001));
-
-			decltype(auto) actual = intersection_checker(s1, s2);
-			Assert::IsTrue(expected == actual.status());
-		}
-
-		TEST_METHOD(NoIntersectionCase3)
-		{
-			ResultStatus expected = ResultStatus::NoIntersection;
-
-			Segment3D s1(Vector3D(1.0, 0.0, 1.0), Vector3D(2.0, 0.0, 2.0))
-					, s2(Vector3D(2.0, 1.0, -1.0), Vector3D(4.0, 2.0, -1.0));
-
-			decltype(auto) actual = intersection_checker(s1, s2);
-			Assert::IsTrue(expected == actual.status());
-		}
-
-		TEST_METHOD(NoIntersectionCase4)
-		{
-			ResultStatus expected = ResultStatus::NoIntersection;
-
-			Segment3D s1(Vector3D(0.0, 0.0, 0.0), Vector3D(0.0, 0.0, 1.0))
-					, s2(Vector3D(0.0, 4.0, 0.0), Vector3D(1.0, 2.0, 0.0));
-
-			decltype(auto) actual = intersection_checker(s1, s2);
-			Assert::IsTrue(expected == actual.status());
-		}
-
-		TEST_METHOD(InfiniteIntersectionCase1)
-		{
-			ResultStatus expected = ResultStatus::Infinite;
-
-			Segment3D s1(Vector3D(0.0, 0.0, 0.0), Vector3D(2.0, 0.0, 0.0))
-					, s2(Vector3D(1.0, 0.0, 0.0), Vector3D(5.0, 0.0, 0.0));
-
-			decltype(auto) actual = intersection_checker(s1, s2);
-			Assert::IsTrue(expected == actual.status());
-		}
-
-		TEST_METHOD(InfiniteIntersectionCase2)
-		{
-			ResultStatus expected = ResultStatus::Infinite;
-
-			Segment3D s1(Vector3D(0.0, 0.0, 0.0), Vector3D(2.0, 0.0, 0.0))
-					, s2(Vector3D(5.0, 0.0, 0.0), Vector3D(1.0, 0.0, 0.0));
-
-			decltype(auto) actual = intersection_checker(s1, s2);
-			Assert::IsTrue(expected == actual.status());
-		}
-
-		TEST_METHOD(InfiniteIntersectionCase3)
-		{
-			ResultStatus expected = ResultStatus::Infinite;
-
-			Segment3D s1(Vector3D(2.0, 0.0, 0.0), Vector3D(0.0, 0.0, 0.0))
-					, s2(Vector3D(5.0, 0.0, 0.0), Vector3D(1.0, 0.0, 0.0));
-
-			decltype(auto) actual = intersection_checker(s1, s2);
-			Assert::IsTrue(expected == actual.status());
-		}
-
-		TEST_METHOD(InfiniteIntersectionCase4)
-		{
-			ResultStatus expected = ResultStatus::Infinite;
-
-			Segment3D s1(Vector3D(2.0, 0.0, 0.0), Vector3D(0.0, 0.0, 0.0))
-					, s2(Vector3D(1.0, 0.0, 0.0), Vector3D(5.0, 0.0, 0.0));
-
-			decltype(auto) actual = intersection_checker(s1, s2);
-			Assert::IsTrue(expected == actual.status());
-		}
-	
-
-		TEST_METHOD(InfiniteIntersectionCase5)
-		{
-			ResultStatus expected = ResultStatus::Infinite;
-
-			Segment3D s1(Vector3D(1.0, 0.0, 0.0), Vector3D(5.0, 0.0, 0.0))
-					, s2(Vector3D(0.0, 0.0, 0.0), Vector3D(2.0, 0.0, 0.0));
-
-			decltype(auto) actual = intersection_checker(s1, s2);
-			Assert::IsTrue(expected == actual.status());
-		}
-
-		TEST_METHOD(InfiniteIntersectionCase6)
-		{
-			ResultStatus expected = ResultStatus::Infinite;
-
-			Segment3D s2(Vector3D(0.0, 0.0, 0.0), Vector3D(2.0, 0.0, 0.0))
-					, s1(Vector3D(5.0, 0.0, 0.0), Vector3D(1.0, 0.0, 0.0));
-
-			decltype(auto) actual = intersection_checker(s1, s2);
-			Assert::IsTrue(expected == actual.status());
-		}
-
-		TEST_METHOD(InfiniteIntersectionCase7)
-		{
-			ResultStatus expected = ResultStatus::Infinite;
-
-			Segment3D s2(Vector3D(2.0, 0.0, 0.0), Vector3D(0.0, 0.0, 0.0))
-					, s1(Vector3D(5.0, 0.0, 0.0), Vector3D(1.0, 0.0, 0.0));
-
-			decltype(auto) actual = intersection_checker(s1, s2);
-			Assert::IsTrue(expected == actual.status());
-		}
-
-		TEST_METHOD(InfiniteIntersectionCase8)
-		{
-			ResultStatus expected = ResultStatus::Infinite;
-
-			Segment3D s2(Vector3D(2.0, 0.0, 0.0), Vector3D(0.0, 0.0, 0.0))
-					, s1(Vector3D(1.0, 0.0, 0.0), Vector3D(5.0, 0.0, 0.0));
-
-			decltype(auto) actual = intersection_checker(s1, s2);
-			Assert::IsTrue(expected == actual.status());
-		}
-	
-		TEST_METHOD(InfiniteIntersectionCase9)
-		{
-			ResultStatus expected = ResultStatus::Infinite;
-
-			Segment3D s1(Vector3D(0.0, 0.0, 0.0), Vector3D(0.0, 2.0, 0.0))
-					, s2(Vector3D(0.0, 1.0, 0.0), Vector3D(0.0, 5.0, 0.0));
-
-			decltype(auto) actual = intersection_checker(s1, s2);
-			Assert::IsTrue(expected == actual.status());
-		}
-
-		TEST_METHOD(InfiniteIntersectionCase10)
-		{
-			ResultStatus expected = ResultStatus::Infinite;
-
-			Segment3D s1(Vector3D(0.0, 0.0, 0.0), Vector3D(0.0, 0.0, 2.0))
-					, s2(Vector3D(0.0, 0.0, 0.5), Vector3D(0.0, 0.0, 1.0));
-
-			decltype(auto) actual = intersection_checker(s1, s2);
-			Assert::IsTrue(expected == actual.status());
-		}
-
-};
 }
